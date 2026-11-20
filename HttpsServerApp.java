@@ -146,7 +146,7 @@ public class HttpsServerApp {
             String html = "<h1>Java Multithreaded HHTPS Server</h1><p>Thread: "
                     + Thread.currentThread().getName() + "</p>";
             sendResponse(out, 200, "OK", "text/html; charset=utf-8", html);
-        } else if ("GET".equalsIgnoreCase(method) && "/echo".equals(path)) {
+        } else if ("GET".equalsIgnoreCase(method) && "/health".equals(path)) {
             sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
         } else if ("POST".equalsIgnoreCase(method) && "/echo".equals(path)) {
             sendResponse(out, 200, "OK", "text/plain; charset=utf-8", body);
