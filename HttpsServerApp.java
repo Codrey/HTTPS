@@ -142,29 +142,76 @@ public class HttpsServerApp {
             throws IOException {
         String path = target.split("\\?", 2)[0];
 
-        if ("GET".equalsIgnoreCase(method) && "/".equals(path)) {
-            String html = "<h1>Java Multithreaded HHTPS Server</h1><p>Thread: "
-                    + Thread.currentThread().getName() + "</p>";
-            sendResponse(out, 200, "OK", "text/html; charset=utf-8", html);
-        } else if ("GET".equalsIgnoreCase(method) && "/health".equals(path)) {
-            sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
-        } else if ("POST".equalsIgnoreCase(method) && "/echo".equals(path)) {
-            sendResponse(out, 200, "OK", "text/plain; charset=utf-8", body);
-        } else {
-            sendResponse(out, 404, "Not Found", "text/plain; charset=utf-8", "Route not found: " + path);
+        switch (path) {
+            case "/" -> { // paths 200 & 405
+                if ("GET".equalsIgnoreCase(method)) {
+                    String html = "<h1>Java Multithreaded HHTPS Server</h1><p>Thread: "
+                            + Thread.currentThread().getName() + "</p>";
+                    sendResponse(out, 200, "OK", "text/html; charset=utf-8", html);
+                } else {
+                    sendResponse(out, 405, "Method not allowed", "text/plain; charset=utf-8",
+                        "Method not allowed for /: " + method, "GET");
+                }
+            }
+            case "/health" -> { // health 
+                if ("GET".equalsIgnoreCase(method)) {
+                    sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
+                } else {
+                    sendResponse(out, 405, "Method not allowed", "text/plain; charset=utf-8",
+                        "Method not allowed for /: " + method, "GET");
+                }
+            }            
+            case "/echo" -> { // POST
+                if ("POST".equalsIgnoreCase(method)) {
+                    sendResponse(out, 200, "OK", "text/plain; charset=utf-8", body);
+                } else {
+                    sendResponse(out, 405, "Method not allowed", "text/plain; charset=utf-8",
+                        "Method not allowed for /echo: " + method, "POST");
+                }
+            }
+            default -> sendResponse(out, 404, "Not Found", "text/plain; charset=utf-8", 
+                "Route not found: " + path);                    
         }
+
+        // if ("GET".equalsIgnoreCase(method) && "/".equals(path)) {
+        //     String html = "<h1>Java Multithreaded HHTPS Server</h1><p>Thread: "
+        //             + Thread.currentThread().getName() + "</p>";
+        //     sendResponse(out, 200, "OK", "text/html; charset=utf-8", html);
+        // } else if ("GET".equalsIgnoreCase(method) && "/health".equals(path)) {
+        //     sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
+        // } else if ("POST".equalsIgnoreCase(method) && "/echo".equals(path)) {
+        //     sendResponse(out, 200, "OK", "text/plain; charset=utf-8", body);
+        // } else {
+        //     sendResponse(out, 404, "Not Found", "text/plain; charset=utf-8", "Route not found: " + path);
+        // }
     }
 
     private static void sendResponse(OutputStream out, int statusCode, String reason,
                     String contentType, String body) throws IOException {
-        byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-        String responseHeaders = "HTTP/1.1 " + statusCode + " " + reason + "\r\n"
-                + "Content-Type: " + contentType + "\r\n"
-                + "Content-Length: " + bodyBytes.length + "\r\n"
-                + "Connection: close\r\n"
-                + "\r\n";
+        sendResponse(out, statusCode, reason, contentType, body, null);
+    }
 
-        out.write(responseHeaders.getBytes(StandardCharsets.US_ASCII));
+    private static void sendResponse(OutputStream out, int statusCode, String reason,
+                    String contentType, String body, String allowedHeader) 
+            throws IOException {
+        byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+        StringBuilder headers = new StringBuilder()
+                .append("HTTP/1.1 ").append(statusCode).append(" ").append(reason).append("\r\n")
+                .append("Content-Type: ").append(contentType).append("\r\n")
+                .append("Content-Length: ").append(bodyBytes.length).append("\r\n");
+        
+        if (allowedHeader != null && !allowedHeader.isBlank()) {
+            headers.append("Allowed: ").append(allowedHeader).append("\r\n");
+        }
+
+        headers.append("Connection: close\r\n\r\n");
+        // String responseHeaders = "HTTP/1.1 " + statusCode + " " + reason + "\r\n"
+        //         + "Content-Type: " + contentType + "\r\n"
+        //         + "Content-Length: " + bodyBytes.length + "\r\n"
+        //         + "Connection: close\r\n"
+        //         + "\r\n";
+
+        out.write(headers.toString().getBytes(StandardCharsets.US_ASCII));
         out.write(bodyBytes);
         out.flush();
     }
