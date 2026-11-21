@@ -1,6 +1,6 @@
 # Multithreaded HTTPS Server (Java)
 
-Buit from scratch multithreaded HTTPS web server that was implemented with Java, using `SSLServerSocket`, `ExecutorService` thread pooling and `javax.net.ssl` (`TLSv1.3` / `TLSv1.2`) backed with a local PKCS#12 keystore (`keystore.p12`).
+Built from scratch multithreaded HTTPS web server that was implemented with Java, using `SSLServerSocket`, `ExecutorService` thread pooling and `javax.net.ssl` (`TLSv1.3` / `TLSv1.2`) backed with a local PKCS#12 keystore (`keystore.p12`).
 
 ## Environment & Prerequisites
 
