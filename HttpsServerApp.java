@@ -158,7 +158,7 @@ public class HttpsServerApp {
                     sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
                 } else {
                     sendResponse(out, 405, "Method not allowed", "text/plain; charset=utf-8",
-                        "Method not allowed for /: " + method, "GET");
+                        "Method not allowed for /health: " + method, "GET");
                 }
             }            
             case "/echo" -> { // POST
@@ -172,18 +172,6 @@ public class HttpsServerApp {
             default -> sendResponse(out, 404, "Not Found", "text/plain; charset=utf-8", 
                 "Route not found: " + path);                    
         }
-
-        // if ("GET".equalsIgnoreCase(method) && "/".equals(path)) {
-        //     String html = "<h1>Java Multithreaded HHTPS Server</h1><p>Thread: "
-        //             + Thread.currentThread().getName() + "</p>";
-        //     sendResponse(out, 200, "OK", "text/html; charset=utf-8", html);
-        // } else if ("GET".equalsIgnoreCase(method) && "/health".equals(path)) {
-        //     sendResponse(out, 200, "OK", "application/json; charset=utf-8", "{\"status\":\"up\"}");
-        // } else if ("POST".equalsIgnoreCase(method) && "/echo".equals(path)) {
-        //     sendResponse(out, 200, "OK", "text/plain; charset=utf-8", body);
-        // } else {
-        //     sendResponse(out, 404, "Not Found", "text/plain; charset=utf-8", "Route not found: " + path);
-        // }
     }
 
     private static void sendResponse(OutputStream out, int statusCode, String reason,
@@ -205,11 +193,6 @@ public class HttpsServerApp {
         }
 
         headers.append("Connection: close\r\n\r\n");
-        // String responseHeaders = "HTTP/1.1 " + statusCode + " " + reason + "\r\n"
-        //         + "Content-Type: " + contentType + "\r\n"
-        //         + "Content-Length: " + bodyBytes.length + "\r\n"
-        //         + "Connection: close\r\n"
-        //         + "\r\n";
 
         out.write(headers.toString().getBytes(StandardCharsets.US_ASCII));
         out.write(bodyBytes);
